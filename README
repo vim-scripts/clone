@@ -1,0 +1,34 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4896
+
+DESCRIPTION
+Often, it is efficient to base a new file (e.g. unit test, meeting minutes) on
+an existing one, and just apply the changes instead of re-creating the entire
+file. In Vim, one can create a duplicate copy of the current buffer via
+:write {newfile} or :saveas {newfile}. But the former doesn't
+automatically open the cloned file, whereas with the latter, you're losing the
+buffer containing the original file. Also, the identical clone is immediately
+persisted, which may confuse automated build tools (or yourself, should you
+get interrupted and forget to make the actual modifications). Transferring the
+buffer contents via :yank is also cumbersome and clobbers a register.
+
+This plugin offers a :CloneAs command that duplicates the current buffer (or
+only parts of it) without persisting the clone right away (only on :w), and
+keeping the original buffer loaded and unmodified inside Vim (with
+:SCloneAs, it'll even be kept displayed in a window).
+
+Oftentimes, duplication in source code is a code smell. Please use this plugin
+responsibly ;-)
+
+SEE ALSO
+The cloneSimilar.vim plugin (vimscript #4897) adds additional command
+variants powered by the EditSimilar.vim (vimscript #2544) plugin.
+
+USAGE
+:[range]CloneAs {file}  Duplicate and edit the current buffer / specified
+                        lines with a new name, keep the existing one.
+:[range]SCloneAs {file} Duplicate and split the current buffer / specified
+                        lines with a new name, keep the existing one.
+
+                        The original cursor position / window view will be
+                        kept, as well as the 'fileformat', 'fileencoding' and
+                        'filetype' settings of the original buffer.
