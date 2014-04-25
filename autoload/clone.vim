@@ -10,6 +10,10 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.013	25-Apr-2014	Suppress BufNewFile event, and instead emit the
+"				more appropriate BufRead event for the clone
+"				buffer.
+"   1.01.012	20-Mar-2014	Allow cloning into unloaded buffer.
 "   1.00.011	17-Mar-2014	Handle automatic template insertion in the new
 "				cloned buffer.
 "				Check for existing buffer name and return error
@@ -41,11 +45,13 @@
 "				file creation
 
 function! clone#CloneAs( filespec, isSplit, startLnum, endLnum )
-    if bufexists(a:filespec)
+    if bufexists(a:filespec) && bufloaded(a:filespec)
 	call ingo#err#Set('Buffer with this name already exists')
 	return 0
     endif
 
+    let l:save_eventignore = &eventignore
+    set eventignore+=BufNewFile " Do not trigger template systems etc.; the appropriate event is BufRead, and we'll emit that instead.
     try
 	let l:filetype = &l:filetype
 	let l:fileformat = &l:fileformat
@@ -83,20 +89,24 @@ function! clone#CloneAs( filespec, isSplit, startLnum, endLnum )
 
 	call setline(1, l:contents)
 
-	if ! empty(l:filetype)
-	    let &l:filetype = l:filetype
-	endif
-
 	if ! l:isEntireBuffer
 	    let l:view.lnum -= a:startLnum - 1
 	    let l:view.topline -= a:startLnum - 1
 	endif
 	silent! call winrestview(l:view)
 
+	doautocmd BufRead
+
+	if ! empty(l:filetype)
+	    let &l:filetype = l:filetype
+	endif
+
 	return 1
     catch /^Vim\%((\a\+)\)\=:E/
 	call ingo#err#SetVimException()
 	return 0
+    finally
+	let &eventignore = l:save_eventignore
     endtry
 endfunction
 

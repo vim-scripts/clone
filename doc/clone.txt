@@ -34,7 +34,7 @@ responsibly ;-)
 
 SEE ALSO								     *
 
-The |cloneSimilar.vim| plugin (vimscript #0000) adds additional command
+The |cloneSimilar.vim| plugin (vimscript #4897) adds additional command
 variants powered by the |EditSimilar.vim| (vimscript #2544) plugin.
 
 ==============================================================================
@@ -86,6 +86,11 @@ IDEAS								 *clone-ideas*
 
 ==============================================================================
 HISTORY							       *clone-history*
+
+1.01	25-Apr-2014
+- Allow cloning into unloaded buffer.
+- Suppress BufNewFile event, and instead emit the more appropriate BufRead
+  event for the clone buffer.
 
 1.00	18-Mar-2014
 First published version.
