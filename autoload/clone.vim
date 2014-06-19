@@ -3,6 +3,7 @@
 " DEPENDENCIES:
 "   - ingo/compat.vim autoload script
 "   - ingo/err.vim autoload script
+"   - ingo/fs/path.vim autoload script
 "
 " Copyright: (C) 2011-2014 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -10,6 +11,11 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.02.015	23-May-2014	Also handle unreadable files (and directories).
+"   1.02.014	07-May-2014	Avoid setting 'filetype' when it already has the
+"				value of the original buffer, because even that
+"				triggers FileType autocmds, and may result in
+"				disturbing duplicate messages.
 "   1.01.013	25-Apr-2014	Suppress BufNewFile event, and instead emit the
 "				more appropriate BufRead event for the clone
 "				buffer.
@@ -61,7 +67,7 @@ function! clone#CloneAs( filespec, isSplit, startLnum, endLnum )
 
 	let l:contents = getline(a:startLnum, a:endLnum)
 
-	if filereadable(a:filespec)
+	if ingo#fs#path#Exists(a:filespec)
 	    " We don't want to read the original file from disk, but rather
 	    " create a new empty buffer with the same name.
 
@@ -97,12 +103,12 @@ function! clone#CloneAs( filespec, isSplit, startLnum, endLnum )
 
 	doautocmd BufRead
 
-	if ! empty(l:filetype)
+	if ! empty(l:filetype) && &l:filetype !=# l:filetype
 	    let &l:filetype = l:filetype
 	endif
 
 	return 1
-    catch /^Vim\%((\a\+)\)\=:E/
+    catch /^Vim\%((\a\+)\)\=:/
 	call ingo#err#SetVimException()
 	return 0
     finally
